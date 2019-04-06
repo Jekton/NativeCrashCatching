@@ -15,18 +15,6 @@
 #include "../log_util.h"
 #include "../util.h"
 
-class DlHandle {
-public:
-  DlHandle(void* handle) : handle_{handle} {}
-  ~DlHandle() {
-    if (handle_) dlclose(handle_);
-  }
-  operator void*() { return handle_; }
-
-private:
-  void* handle_;
-};
-
 static const char* kTag = "Backtrace";
 const char* kLibBacktrace = "libbacktrace.so";
 
@@ -62,7 +50,8 @@ void GetStackTrace(pid_t tid, void* ctx, GetTraceCallback* callback) {
 }
 
 static BacktraceStub* CreateBacktrace(pid_t tid) {
-  DlHandle handle = ndk_dlopen(kLibBacktrace, RTLD_LAZY);
+  auto deleter = [](void* handle) { ndk_dlclose(handle); };
+  std::unique_ptr<void, decltype(deleter)> handle{ndk_dlopen(kLibBacktrace, RTLD_LAZY), deleter};
   if (!handle) {
     LOGERRNO(kTag, "CrateBacktrace, fail to dlopen %s", kLibBacktrace);
     return nullptr;
@@ -70,11 +59,11 @@ static BacktraceStub* CreateBacktrace(pid_t tid) {
 
   using BacktraceCreate = BacktraceStub* (*)(pid_t pid, pid_t tid, void* map);
   union { void* p; BacktraceCreate fn; } backtrace_create;
-  backtrace_create.p = ndk_dlsym(handle, "_ZN9Backtrace6CreateEiiP12BacktraceMap");
+  backtrace_create.p = ndk_dlsym(handle.get(), "_ZN9Backtrace6CreateEiiP12BacktraceMap");
   if (!backtrace_create.p) {
     LOGE(kTag, "CrateBacktrace, fail to get symbol Backtrace::Create: %s", ndk_dlerror());
     return nullptr;
- }
+  }
 
   return backtrace_create.fn(BACKTRACE_CURRENT_PROCESS, tid, nullptr);
 }

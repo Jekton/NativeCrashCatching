@@ -13,7 +13,7 @@ Java_com_example_nativecrashcatching_CrashCatching_initNative(
   InitCrashCaching();
 }
 
-static void foo() {
+void foo() {
   volatile int* p = nullptr;
   *p = 1;
 }

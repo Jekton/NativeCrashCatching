@@ -17,7 +17,7 @@ class GetTraceCallback {
 };
 
 /*
- * @ctx can nullptr or context from signal handler
+ * @ctx can be nullptr or context from signal handler
  */
 void GetStackTrace(pid_t tid, void* ctx, GetTraceCallback* callback);
 

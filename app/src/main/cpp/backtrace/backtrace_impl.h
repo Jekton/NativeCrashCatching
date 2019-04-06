@@ -11,49 +11,22 @@
 #include <string>
 #include <vector>
 
-enum BacktraceUnwindErrorCode : uint32_t {
+enum BacktraceUnwindError : uint32_t {
   BACKTRACE_UNWIND_NO_ERROR,
   // Something failed while trying to perform the setup to begin the unwind.
-      BACKTRACE_UNWIND_ERROR_SETUP_FAILED,
+  BACKTRACE_UNWIND_ERROR_SETUP_FAILED,
   // There is no map information to use with the unwind.
-      BACKTRACE_UNWIND_ERROR_MAP_MISSING,
+  BACKTRACE_UNWIND_ERROR_MAP_MISSING,
   // An error occurred that indicates a programming error.
-      BACKTRACE_UNWIND_ERROR_INTERNAL,
+  BACKTRACE_UNWIND_ERROR_INTERNAL,
   // The thread to unwind has disappeared before the unwind can begin.
-      BACKTRACE_UNWIND_ERROR_THREAD_DOESNT_EXIST,
+  BACKTRACE_UNWIND_ERROR_THREAD_DOESNT_EXIST,
   // The thread to unwind has not responded to a signal in a timely manner.
-      BACKTRACE_UNWIND_ERROR_THREAD_TIMEOUT,
+  BACKTRACE_UNWIND_ERROR_THREAD_TIMEOUT,
   // Attempt to do an unsupported operation.
-      BACKTRACE_UNWIND_ERROR_UNSUPPORTED_OPERATION,
+  BACKTRACE_UNWIND_ERROR_UNSUPPORTED_OPERATION,
   // Attempt to do an offline unwind without a context.
-      BACKTRACE_UNWIND_ERROR_NO_CONTEXT,
-  // The count of frames exceed MAX_BACKTRACE_FRAMES.
-      BACKTRACE_UNWIND_ERROR_EXCEED_MAX_FRAMES_LIMIT,
-  // Failed to read memory.
-      BACKTRACE_UNWIND_ERROR_ACCESS_MEM_FAILED,
-  // Failed to read registers.
-      BACKTRACE_UNWIND_ERROR_ACCESS_REG_FAILED,
-  // Failed to find a function in debug sections.
-      BACKTRACE_UNWIND_ERROR_FIND_PROC_INFO_FAILED,
-  // Failed to execute dwarf instructions in debug sections.
-      BACKTRACE_UNWIND_ERROR_EXECUTE_DWARF_INSTRUCTION_FAILED,
-  // Unwind information is incorrect.
-      BACKTRACE_UNWIND_ERROR_UNWIND_INFO,
-  // Unwind information stopped due to sp/pc repeating.
-      BACKTRACE_UNWIND_ERROR_REPEATED_FRAME,
-};
-
-struct BacktraceUnwindError {
-  enum BacktraceUnwindErrorCode error_code;
-
-  union {
-    // for BACKTRACE_UNWIND_ERROR_ACCESS_MEM_FAILED
-    uint64_t addr;
-    // for BACKTRACE_UNWIND_ERROR_ACCESS_REG_FAILED
-    uint64_t regno;
-  } error_info;
-
-  BacktraceUnwindError() : error_code(BACKTRACE_UNWIND_NO_ERROR) {}
+  BACKTRACE_UNWIND_ERROR_NO_CONTEXT,
 };
 
 struct backtrace_map_t {
